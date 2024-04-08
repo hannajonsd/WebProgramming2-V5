@@ -1,10 +1,20 @@
 import Image from "next/image";
 import styles from "./page.module.css";
+import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
+import { createClient } from "@/prismicio";
+import { PrismicText } from "@prismicio/react";
 
-export default function Home() {
+type PageProps = InferGetStaticPropsType<typeof getStaticProps>
+
+export default function Page({ page }: PageProps) {
+  // `page` is typed as PageDocument.
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
+      <p>Hello</p>
+      <h1>
+        <PrismicText field={page.data.title}/>
+        </h1>
+      {/* <div className={styles.description}>
         <p>
           Get started by editing&nbsp;
           <code className={styles.code}>app/page.tsx</code>
@@ -89,7 +99,23 @@ export default function Home() {
             Instantly deploy your Next.js site to a shareable URL with Vercel.
           </p>
         </a>
-      </div>
+      </div> */}
     </main>
   );
+}
+
+export async function getStaticProps({
+  previewData,
+}: GetStaticPropsContext) {
+  const client = createClient({ previewData })
+  //    ^ Automatically contains references to document types
+
+  const page = await client.getByUID('page', 'home')
+  //    ^ Typed as PageDocument
+
+  return {
+    props: {
+      page,
+    },
+  }
 }
